@@ -175,22 +175,21 @@
                     <td class="modal-sm" style="width: 186px; height: 27px;">&nbsp;</td>
                     <td style="width: 174px; height: 27px;" class="modal-sm">
                         <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" />    
+                        <asp:Button ID="Register" runat="server" Height="30px" OnClick="Button1_Click1" Text="Register" Width="70px" />
                     </td>
                     <td style="width: 177px; height: 27px;">&nbsp;</td>
                     <td style="height: 27px">&nbsp;</td>
                 </tr>
                 <tr>
                     <td class="modal-sm" style="width: 186px; height: 27px;">&nbsp;</td>
-                    <td style="width: 174px; height: 27px;" class="modal-sm">
-                        &nbsp;</td>
+                    <td style="width: 174px; height: 27px;" class="modal-sm"></td>
                     <td style="width: 177px; height: 27px;">&nbsp;</td>
                     <td style="height: 27px">&nbsp;</td>
                 </tr>
                 <tr>
                     <td class="modal-sm" style="width: 186px; height: 20px;"></td>
                     <td style="width: 174px; height: 20px;" class="modal-sm">
-                        <asp:Button  class="g-recaptcha" data-sitekey="6Lcx40EaAAAAAAaYgzxPeKaNOxMm8BQaYpI68u0r" data-callback="onSubmit" data-action="submit" ID="Register" runat="server" Height="30px" OnClick="Button1_Click1" Text="Register" Width="70px" />
-                    </td>
+                        &nbsp;</td>
                     <td style="width: 177px; height: 20px;"></td>
                     <td style="height: 20px">&nbsp;</td>
                 </tr>

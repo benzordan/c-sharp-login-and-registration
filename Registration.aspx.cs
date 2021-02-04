@@ -26,10 +26,8 @@ namespace as_assignment
         protected void Page_Load(object sender, EventArgs e)
         {
         }
-        // -----------------------------------------------------------------------------------
         //  ENCRYPT DATA
         //  This function encrypts any data passed as a parameter
-        // -----------------------------------------------------------------------------------
         protected byte[] encryptData(string data)
         {
             byte[] cipherText = null; 
@@ -50,10 +48,8 @@ namespace as_assignment
             finally { }
             return cipherText;
         }
-        // -----------------------------------------------------------------------------------
         //  INSERT ACCOUNT INTO DATABASE
         //  This function inserts the account details into the database
-        // -----------------------------------------------------------------------------------
         protected void createAccount()
         {
             try
@@ -88,13 +84,10 @@ namespace as_assignment
                 throw new Exception(ex.ToString());
             }
         }
-
-        // -----------------------------------------------------------------------------------
         //  CHECK PASSWORD STRENGTH
         //  This function checks the password strength and returns the score of the password
         //  Score starts at 1 
         //  Score increments everytime it fulfills a regex expression
-        // -----------------------------------------------------------------------------------
         private int checkPassword(string password)
         {
             int score = 0;
@@ -125,11 +118,8 @@ namespace as_assignment
             }
             return score;
         }
-
-        // -----------------------------------------------------------------------------------
         //  REGISTER
         //  This function executes when the user clicks on the register button
-        // -----------------------------------------------------------------------------------
         protected void Button1_Click1(object sender, EventArgs e)
         {
             try
@@ -141,7 +131,7 @@ namespace as_assignment
                 lbPWError.Text = "";
                 lbCardError.Text = "";
                 bool validate = false;
-                int validationScore = 8;
+                int validationScore = 6;
                 {
                     // -----------------------------------------------------------------------------------
                     //                      Mitigate Cross Site Scripting by encoding 
@@ -155,19 +145,19 @@ namespace as_assignment
 
                     string dbEmail = getDBEmail(tb_email.Text);
                     // Validate inputs
-                    if (tb_firstName.Text == "")
+                    if (String.IsNullOrEmpty(tb_firstName.Text))
                     {
                         lbFNError.Text = "Please enter your first Name";
                         lbFNError.ForeColor = Color.Red;
                         validationScore--;
                     }
-                    if (tb_lastName.Text == "")
+                    if (String.IsNullOrEmpty(tb_lastName.Text))
                     {
                         lbLNError.Text = "Please enter your last Name";
                         lbLNError.ForeColor = Color.Red;
                         validationScore--;
                     }
-                    if (tb_email.Text == "" || !Regex.IsMatch(tb_email.Text, @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"))
+                    if (!Regex.IsMatch(tb_email.Text, @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"))
                     {
                         lbEmailError.Text = "Please enter a valid email";
                         lbEmailError.ForeColor = Color.Red;
@@ -179,40 +169,37 @@ namespace as_assignment
                         lbEmailError.ForeColor = Color.Red;
                         validationScore--;
                     }
-                    if (tb_DOB.Text == "")
+                    if (!Regex.IsMatch(tb_password.Text, @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"))
                     {
-                        lbDOB.Text = "Please select a valid DOB";
-                        lbDOB.ForeColor = Color.Red;
-                        validationScore--;
-                    }
-                    if (tb_password.Text == "")
-                    {
-                        lbPWError.Text = "Please enter valid password";
+                        lbPWError.Text = "Password must be above 8 characters. It must contain at least one uppercase letter, one lowercase letter, one number and one special character.";
                         lbPWError.ForeColor = Color.Red;
                         validationScore--;
                     }
-                    if (tb_creditCardNumber.Text == "" && tb_creditCardNumber.Text.Length != 16)
+                    if (!Regex.IsMatch(tb_creditCardNumber.Text, @"^(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$"))
                     {
                         lbCardError.Text = "Please enter a valid credit card number";
                         lbCardError.ForeColor = Color.Red;
                         validationScore--;
                     }
-                    if (validationScore == 8) {
+                    if (validationScore == 6) {
                         validate = true;
                     }
 
                     if (validate)
                     {
                         string pwd = tb_password.Text.ToString().Trim();
-                        //Generate random "salt" 
+
+                        //Generate random salt
                         RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
                         byte[] saltByte = new byte[8];
+
                         //Fills array of bytes with a cryptographically strong sequence of random values.
                         rng.GetBytes(saltByte);
                         salt = Convert.ToBase64String(saltByte);
                         SHA512Managed hashing = new SHA512Managed();
                         string pwdWithSalt = pwd + salt;
                         byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
+
                         //  Hash account password with salt
                         byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
                         finalHash = Convert.ToBase64String(hashWithSalt);
@@ -234,7 +221,8 @@ namespace as_assignment
         {
 
         }
-
+        // CHECK PW STRENGTH
+        // This function checks the strength of the password when user clicks on check password button
         protected void checkPW_Click(object sender, EventArgs e)
         {
             tb_password.Text = HttpUtility.HtmlEncode(tb_password.Text);
@@ -275,6 +263,8 @@ namespace as_assignment
             public string success { get; set; }
             public List<String> ErrorMessage { get; set; }
         }
+        // VALIDATE CAPTCHA
+        // This functions validates the captcha
         public bool validateCaptcha()
         {
             bool result = true;
@@ -300,6 +290,8 @@ namespace as_assignment
                 throw ex;
             }
         }
+        // RETRIEVE EMAIL
+        // THIS FUNCTION RETRIEVES EMAIL
         protected string getDBEmail(string email)
         {
             string h = null;

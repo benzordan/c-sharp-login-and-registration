@@ -30,26 +30,8 @@
             <tr>
                 <td style="width: 138px; height: 20px;"></td>
                 <td style="height: 20px; width: 220px">
-                    <asp:HyperLink ID="HyperLink1" runat="server">Forgot Password?</asp:HyperLink>
-                </td>
+                    &nbsp;</td>
                 <td style="height: 20px">&nbsp;</td>
-            </tr>
-            <tr>
-                <td style="width: 138px; height: 20px;"></td>
-                <td style="width: 220px; height: 20px;"></td>
-                <td style="height: 20px"></td>
-            </tr>
-            <tr>
-                <td style="width: 138px">&nbsp;</td>
-                <td style="width: 220px">
-                    <!-- Insert captcha -->
-                </td>
-                <td>&nbsp;</td>
-            </tr>
-            <tr>
-                <td style="width: 138px">&nbsp;</td>
-                <td style="width: 220px">&nbsp;</td>
-                <td>&nbsp;</td>
             </tr>
             <tr>
                 <td style="width: 138px; height: 20px;"></td>

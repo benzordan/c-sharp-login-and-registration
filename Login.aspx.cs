@@ -14,6 +14,7 @@ using System.IO;
 using System.Web.Script.Serialization;
 using System.Web.Services;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace as_assignment
 {
@@ -37,61 +38,90 @@ namespace as_assignment
                 tb_email.Text = HttpUtility.HtmlEncode(tb_email.Text);
                 tb_PW.Text = HttpUtility.HtmlEncode(tb_PW.Text);
 
-                
-                string dbEmail = getDBEmail(tb_email.Text);
-                string dbStatus = getDBStatus(tb_email.Text);
-                if (dbEmail != null && dbEmail.Length > 0)
+                var validationScore = 2;
+                var validate = false;
+                // Input validation
+                if (!Regex.IsMatch(tb_email.Text, @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"))
                 {
+                    lb_Error.Text = "Please enter a valid email";
+                    lb_Error.ForeColor = Color.Red;
+                    validationScore--;
+                }
+                if (String.IsNullOrEmpty(tb_PW.Text))
+                {
+                    lb_Error.Text = "Please enter a password";
+                    lb_Error.ForeColor = Color.Red;
+                    validationScore--;
+                }
+                if (validationScore == 2)
+                {
+                    string dbEmail = getDBEmail(tb_email.Text);
+                    string dbStatus = getDBStatus(tb_email.Text);
 
-                    if (dbStatus == "unlocked")
+                    // Check if db email exists
+                    if (dbEmail != null && dbEmail.Length > 0)
                     {
 
-                    // Check if password is valid
-                        SHA512Managed hashing = new SHA512Managed();
-                        string dbHash = getDBHash(tb_email.Text);
-                        string dbSalt = getDBSalt(tb_email.Text);
-
-                        if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
+                        if (dbStatus == "unlocked")
                         {
-                            // Convert tb_PW (input password)
-                            string pwdWithSalt = tb_PW.Text + dbSalt;
-                            byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-                            string userHash = Convert.ToBase64String(hashWithSalt);
-                            if (userHash.Equals(dbHash))
-                            {
-                                Session["LoggedIn"] = tb_email.Text.Trim();
-                                string guid = Guid.NewGuid().ToString();
-                                Session["AuthToken"] = guid;
-                                Response.Cookies.Add(new HttpCookie("AuthToken", guid));
-                                Response.Redirect("Homepage.aspx", false);
-                            } else if (loginAttempt < 3) { 
-                                lb_Error.Text = (3-loginAttempt) + " more attempts remaining";
-                                lb_Error.ForeColor = Color.Red;
-                                loginAttempt++;
 
-                            } else if (loginAttempt ==  3) {
-                                setLockStatus(tb_email.Text.ToString());
-                                lb_Error.Text = "Account has been locked.";
-                                lb_Error.ForeColor = Color.Red;
-                                loginAttempt = 0;
+                            // Check if password is valid
+                            SHA512Managed hashing = new SHA512Managed();
+                            string dbHash = getDBHash(tb_email.Text);
+                            string dbSalt = getDBSalt(tb_email.Text);
+
+                            // Check if db salt and db hash exists
+                            if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
+                            {
+                                // Convert tb_PW (input password)
+                                string pwdWithSalt = tb_PW.Text + dbSalt;
+                                byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                                string userHash = Convert.ToBase64String(hashWithSalt);
+                                if (userHash.Equals(dbHash))
+                                {
+                                    Session["LoggedIn"] = tb_email.Text.Trim();
+                                    string guid = Guid.NewGuid().ToString();
+                                    Session["AuthToken"] = guid;
+                                    Response.Cookies.Add(new HttpCookie("AuthToken", guid));
+                                    Response.Redirect("Homepage.aspx", false);
+                                }
+                                else if (loginAttempt < 3)
+                                {
+                                    lb_Error.Text = (3 - loginAttempt) + " more attempts remaining";
+                                    lb_Error.ForeColor = Color.Red;
+                                    loginAttempt++;
+
+                                }
+                                else if (loginAttempt == 3)
+                                {
+                                    setLockStatus(tb_email.Text.ToString());
+                                    lb_Error.Text = "Account has been locked.";
+                                    lb_Error.ForeColor = Color.Red;
+                                    loginAttempt = 0;
+                                }
                             }
                         }
-                    } else
+                        else
+                        {
+                            lb_Error.Text = "Your account has been locked. Please contact adminstrator";
+                            lb_Error.ForeColor = Color.Red;
+                        }
+                    }
+                    else
                     {
-                        lb_Error.Text = "Your account has been locked. Please contact adminstrator";
+                        lb_Error.Text = errorMsg;
                         lb_Error.ForeColor = Color.Red;
                     }
-                } else
-                {
-                    lb_Error.Text = errorMsg;
-                    lb_Error.ForeColor = Color.Red;
                 }
+               
             }
             catch (Exception ex) 
             {
                 throw new Exception(ex.ToString());
             }
         }
+        // RETRIEVE EMAIL
+        // This functions retrieves the db email from the database
         protected string getDBEmail(string email)
         {
             string h = null;
@@ -127,6 +157,8 @@ namespace as_assignment
             }
             return h;
         }
+        // RETRIEVE HASH
+        // This functions retrieves the hash from respective email from the database
         protected string getDBHash(string email) {
             string h = null;
 
@@ -161,6 +193,8 @@ namespace as_assignment
             }
             return h;
         }
+        // RETRIEVE SALT
+        // This functions retrieves the db salt from respective email from the database
         protected string getDBSalt(string email)
         {
             string s = null;
@@ -196,6 +230,8 @@ namespace as_assignment
             }
             return s;
         }
+        // RETRIEVE DB Status
+        // This functions retrieves the status from respective account from the database
         protected string getDBStatus(string email)
         {
             string s = null;
@@ -231,6 +267,8 @@ namespace as_assignment
             }
             return s;
         }
+        // SET LOCK
+        // This function sets status of account to locked
         private void setLockStatus(string email)
         {
             SqlConnection connection = new SqlConnection(libraryDB);
@@ -259,6 +297,8 @@ namespace as_assignment
             public string success { get; set; }
             public List<String> ErrorMessage { get; set; }
         }
+        // VALIDATE CAPTCHA
+        // This functions validates the captcha
         public bool validateCaptcha()
         {
             bool result = true;
