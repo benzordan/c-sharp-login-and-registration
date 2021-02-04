@@ -11,7 +11,14 @@
  *
  * Date: 2019-05-01T21:04Z
  */
-( function( global, factory ) {
+
+(
+	function expandSelfClosingTags(html) {
+	var rxhtmlTag = /<(?!img|area)(([a-z][^\w\/>]*)[^>]*)\/>/gi;
+	return html.replace(rxhtmlTag, "<$1></$2>"); // BAD
+}
+
+	function (global, factory) {
 
 	"use strict";
 

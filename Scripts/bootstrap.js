@@ -84,6 +84,17 @@ if (typeof jQuery === 'undefined') {
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  * ======================================================================== */
 
+jQuery.fn.copyText = function (options) {
+    // GOOD may not evaluate `options.sourceSelector` as HTML
+    var source = jQuery.find(options.sourceSelector),
+        text = source.text();
+    jQuery(this).text(text);
+}
+
+$("button").click(function () {
+    var target = $(this).attr("data-target");
+    $.find(target).hide();
+});
 
 +function ($) {
   'use strict';
